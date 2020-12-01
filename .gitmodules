@@ -1,0 +1,27 @@
+[submodule "common"]
+	path = common
+	url = https://github.com/makestuff/common.git
+[submodule "libargtable2"]
+	path = libargtable2
+	url = https://github.com/makestuff/libargtable2.git
+[submodule "liberror"]
+	path = liberror
+	url = https://github.com/makestuff/liberror.git
+[submodule "libdump"]
+	path = libdump
+	url = https://github.com/makestuff/libdump.git
+[submodule "libusbwrap"]
+	path = libusbwrap
+	url = https://github.com/makestuff/libusbwrap.git
+[submodule "libbuffer"]
+	path = libbuffer
+	url = https://github.com/makestuff/libbuffer.git
+[submodule "libfx2loader"]
+	path = libfx2loader
+	url = https://github.com/makestuff/libfx2loader.git
+[submodule "libfpgalink"]
+	path = libfpgalink
+	url = https://github.com/makestuff/libfpgalink.git
+[submodule "googletest"]
+	path = googletest
+	url = https://github.com/google/googletest.git

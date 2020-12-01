@@ -1,0 +1,27 @@
+{
+    // See: https://go.microsoft.com/fwlink/?linkid=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "cmake",
+            "type": "shell",
+            "command": "rm -rf build; mkdir build; cd build; cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=1 -DCMAKE_VERBOSE_MAKEFILE=1 -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_INSTALL_RPATH=\\$ORIGIN -DCMAKE_EXPORT_COMPILE_COMMANDS=1 ..",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "cmake --build build --target install",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}

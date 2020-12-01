@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+
+      - name: Fetch Dependencies
+        run: sudo apt-get -y install --no-install-recommends libusb-1.0-0-dev
+
+      - name: Build
+        run: ./build.sh Release
+
+      - name: Test
+        run: cd build && ctest -C Release --verbose
+
+  build-windows:
+    runs-on: windows-2019
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+
+      - name: Build
+        run: .\build.cmd Release
+
+      - name: Test
+        run: cd build && ctest -C Release --verbose

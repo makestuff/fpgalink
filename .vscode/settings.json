@@ -1,0 +1,11 @@
+{
+    "gtest-adapter.debugConfig": [
+        "foo-tests",
+        "buffer-tests",
+        "error-tests",
+        "usbwrap-tests",
+        "fx2loader-tests",
+        "fpgalink-tests"
+    ],
+    "gtest-adapter.supportLocation": true
+}
