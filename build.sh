@@ -10,7 +10,6 @@ if [ ! -e build ]; then
   mkdir build
   cd build
   cmake \
-    -G "MinGW Makefiles" \
     -DCMAKE_BUILD_TYPE=${CONFIG} \
     -DBUILD_TESTING=1 \
     -DCMAKE_VERBOSE_MAKEFILE=0 \
@@ -23,5 +22,5 @@ fi
 
 # Maybe build
 if [ $# -lt 2 ] || [ $2 != "-nobuild" ]; then
-  cmake --build build --target install -v
+  cmake --build build --target install
 fi
