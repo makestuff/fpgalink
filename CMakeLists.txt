@@ -9,11 +9,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 # Turn warning level up, use C++17 and C99
 if(MSVC)
   add_compile_options(/W4 /WX /DBYTE_ORDER=1234 /D_CRT_SECURE_NO_WARNINGS)
+elseif (MINGW)
+  add_compile_options(-Wall -Wextra -pedantic -Werror -DBYTE_ORDER=1234 -DWIN32 -D_WIN32)
 else()
   add_compile_options(-Wall -Wextra -pedantic -Werror -DBYTE_ORDER=1234)
-endif()
-if (MINGW)
-  add_compile_options(-DWIN32 -D_WIN32)
 endif()
 
 set(CMAKE_CXX_STANDARD 17)
