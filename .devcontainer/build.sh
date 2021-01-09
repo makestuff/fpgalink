@@ -1,10 +1,19 @@
-# Install code-server
-curl -fsSL https://code-server.dev/install.sh | sh
+# Maybe install code-server (i.e if we're NOT on GitHub codespaces)
+if [ -z "${GITHUB_TOKEN}" ]; then
+  curl -fsSL https://code-server.dev/install.sh | sh
+  mkdir -p .config/code-server
+  cat > .config/code-server/config.yaml <<EOF
+bind-addr: 0.0.0.0:8080
+auth: password
+password: mun789
+cert: false
+EOF
+fi
 
 # Create dirs
-mkdir -p .config/code-server
 mkdir -p .local/share/code-server/extensions
 mkdir -p .local/share/code-server/User
+ln -s ~/.local/share/code-server .vscode-remote
 
 # Create init.sh
 cat > init.sh <<EOF
@@ -16,105 +25,59 @@ git submodule update --init --recursive
 EOF
 chmod +x init.sh
 
-# Create config.yaml
-cat > .config/code-server/config.yaml <<EOF
-bind-addr: 0.0.0.0:8080
-auth: password
-password: mun789
-cert: false
-EOF
-
 # Create default settings.json
 cat > .local/share/code-server/User/settings.json <<EOF
 {
     "terminal.integrated.shell.linux": "/bin/bash",
+    "extensions.ignoreRecommendations": true,
     "workbench.colorTheme": "Default Dark+",
     "workbench.tree.indent": 24,
-    "extensions.ignoreRecommendations": true,
     "explorer.confirmDelete": false,
+    "editor.minimap.enabled": false,
+    "editor.tabSize": 2,
+
     "C_Cpp.errorSquiggles": "Disabled",
     "C_Cpp.intelliSenseEngine": "Disabled",
     "clangd.path": "/usr/bin/clangd-11",
+    "clangd.onConfigChanged": "restart",
     "clangd.arguments": [
+        "--query-driver=*",
         "--background-index",
         "--compile-commands-dir=build",
         "-j=32"
     ],
-    "clangd.onConfigChanged": "restart",
-    "editor.minimap.enabled": false,
-    "editor.tokenColorCustomizations": {
-        "textMateRules": [
-            {
-                "scope": "googletest.failed",
-                "settings": {
-                    "foreground": "#f00"
-                }
-            },
-            {
-                "scope": "googletest.passed",
-                "settings": {
-                    "foreground": "#0f0"
-                }
-            },
-            {
-                "scope": "googletest.run",
-                "settings": {
-                    "foreground": "#0f0"
-                }
-            }
-        ]
-    }
+    "testMate.cpp.log.logSentry": "disable_3",
+    "testMate.cpp.debug.configTemplate": {
+        "type": "cppdbg",
+        "program": "\${exec}",
+        "args": "\${argsArray}",
+        "cwd": "\${cwd}",
+        "sourceFileMap":"\${sourceFileMapObj}",
+        "setupCommands": [{"text": "-enable-pretty-printing"}]
+    },
+    "testMate.cpp.test.advancedExecutables": [{
+        "pattern": "build/**/*-tests*",
+        "runTask": {"before": ["build"]}
+    }]
 }
 EOF
-
-# Replicate settings for codespaces
-ln -s ~/.local/share/code-server .vscode-remote
 
 # Install extensions
 TEMP=$(mktemp -d)
 cd ${TEMP}
-URL=http://makestuff.de/ext/vscode-clangd.zip.gz
-#URL=https://marketplace.visualstudio.com/_apis/public/gallery/publishers/llvm-vs-code-extensions/vsextensions/vscode-clangd/0.1.8/vspackage
-wget -O pkg.zip.gz ${URL}
-gunzip pkg.zip.gz 
-unzip pkg.zip
-mv extension ~/.local/share/code-server/extensions/llvm-vs-code-extensions.vscode-clangd-0.1.8
-rm -rf *
-
-URL=http://makestuff.de/ext/cpptools.zip.gz
-#URL=https://marketplace.visualstudio.com/_apis/public/gallery/publishers/ms-vscode/vsextensions/cpptools/1.1.2/vspackage
-wget -O pkg.zip.gz ${URL}
-gunzip pkg.zip.gz
-unzip pkg.zip
-mv extension ~/.local/share/code-server/extensions/ms-vscode.cpptools-1.1.2
-rm -rf *
-
-URL=http://makestuff.de/ext/gtest-adapter.zip.gz
-#URL=https://marketplace.visualstudio.com/_apis/public/gallery/publishers/DavidSchuldenfrei/vsextensions/gtest-adapter/1.8.3/vspackage
-wget -O pkg.zip.gz ${URL}
-gunzip pkg.zip.gz
-unzip pkg.zip
-mv extension ~/.local/share/code-server/extensions/davidschuldenfrei.gtest-adapter-1.8.3
-cd ~/.local/share/code-server/extensions/davidschuldenfrei.gtest-adapter-1.8.3
-patch -p1 <<EOF
-diff -r -U1 extension/out/GTestWrapper.js ext-patch/out/GTestWrapper.js
---- extension/out/GTestWrapper.js	2019-04-03 10:27:04.000000000 +0000
-+++ ext-patch/out/GTestWrapper.js	2020-11-26 22:04:01.327171807 +0000
-@@ -120,2 +120,3 @@
-                 vscode_1.commands.executeCommand('workbench.view.debug');
-+                debugConfig.args.pop();
-             }
-diff -r -U1 extension/package.json ext-patch/package.json
---- extension/package.json	2019-04-03 10:25:38.000000000 +0000
-+++ ext-patch/package.json	2020-11-26 22:04:01.331171875 +0000
-@@ -202,3 +202,7 @@
-                 "gtest-adapter.debugConfig": {
--                    "type": ["string", "string[]"],
-+                    "type": ["string", "array"],
-+                    "default": [],
-+                    "items": {
-+                    	"type": "string"
-+                    },
-                     "description": "Debug configuration for debugging unittests."
-EOF
+EXT_DIR=~/.local/share/code-server/extensions
+BASE_URL=http://makestuff.de/ext
+EXTENSIONS="
+  hbenl.vscode-test-explorer-2.19.4
+  llvm-vs-code-extensions.vscode-clangd-0.1.8
+  matepek.vscode-catch2-test-adapter-3.6.19
+  ms-vscode.cpptools-1.1.3
+"
+for i in ${EXTENSIONS}; do
+  echo "Installing ${i}..."
+  wget -q ${BASE_URL}/${i}.vsix
+  unzip -q ${i}.vsix
+  mv extension ${EXT_DIR}/${i}
+  rm -rf *
+done
 rm -rf ${TEMP}
