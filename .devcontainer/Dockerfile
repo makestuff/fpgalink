@@ -11,5 +11,4 @@ RUN apt-get -y install --no-install-recommends clangd-11 libusb-1.0-0-dev
 
 # Run final steps as vscode user
 COPY setup.sh /home/vscode/
-RUN set > /home/vscode/env.txt
 RUN su - vscode -c './setup.sh GC'

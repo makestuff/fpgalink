@@ -7,18 +7,19 @@ if [ $# -ne 1 ] || [ "$1" != "GC" ] && [ "$1" != "CS" ]; then
 fi
 MODE=$1
 
+# Get environment
+set > ~/env.txt
+
 # Decide what to do based on the mode
 if [ ${MODE} = "GC" ]; then
   # Running in github codespaces
-  INSTALL_LOC=~/.vscode-remote
-  SETTINGS=settings-new
-  rm -rf ${INSTALL_LOC}
+  #INSTALL_LOC=~/.vscode-remote
+  INSTALL_LOC=~/.local/share/code-server
   cat > ~/init.sh <<EOF
 #!/bin/sh
 # The GitHub Codespaces init process overwrites any settings files, so the needs to be done later
-LOC=~/.vscode-remote/data/Machine
-rm -f \${LOC}/settings.json
-ln -s \${LOC}/settings-new.json \${LOC}/settings.json
+rm -f ~/.local/share/code-server/data/Machine/settings.json
+ln -s ~/.local/share/code-server/User/settings.json ~/.local/share/code-server/data/Machine/settings.json
 git submodule update --init --recursive
 ./build.sh Debug -nobuild
 EOF
@@ -26,7 +27,6 @@ EOF
 elif [ ${MODE} = "CS" ]; then
   # Need to install code-server
   INSTALL_LOC=~/.local/share/code-server
-  SETTINGS=settings
   curl -fsSL https://code-server.dev/install.sh | sh
   mkdir -p .config/code-server
   cat > .config/code-server/config.yaml <<EOF
@@ -42,7 +42,7 @@ mkdir -p ${INSTALL_LOC}/extensions
 mkdir -p ${INSTALL_LOC}/User
 
 # Create default settings.json
-cat > ${INSTALL_LOC}/data/Machine/${SETTINGS}.json <<EOF
+cat > ${INSTALL_LOC}/User/${SETTINGS}.json <<EOF
 {
     "terminal.integrated.shell.linux": "/bin/bash",
     "extensions.ignoreRecommendations": true,
