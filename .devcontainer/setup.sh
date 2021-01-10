@@ -38,7 +38,7 @@ mkdir -p ${INSTALL_LOC}/extensions
 mkdir -p ${INSTALL_LOC}/User
 
 # Create default settings.json
-cat > ${INSTALL_LOC}/User/settings.json <<EOF
+cat > ${INSTALL_LOC}/data/Machine/settings.json <<EOF
 {
     "terminal.integrated.shell.linux": "/bin/bash",
     "extensions.ignoreRecommendations": true,
