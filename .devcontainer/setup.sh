@@ -7,20 +7,11 @@ if [ $# -ne 1 ] || [ "$1" != "GC" ] && [ "$1" != "CS" ]; then
 fi
 MODE=$1
 
-# Maybe install code-server
-INSTALL_LOC=~/.local/share/code-server
-if [ ${MODE} = "CS" ]; then
-  # Need to install code-server
-  curl -fsSL https://code-server.dev/install.sh | sh
-  mkdir -p .config/code-server
-  cat > .config/code-server/config.yaml <<EOF
-bind-addr: 0.0.0.0:8080
-auth: password
-password: mun789
-cert: false
-EOF
-elif [ ${MODE} = "GC" ]; then
+# Decide what to do based on the mode
+if [ ${MODE} = "GC" ]; then
   # Running in github codespaces
+  INSTALL_LOC=~/.vscode-remote
+  rm -rf ${INSTALL_LOC}
   cat > ~/init.sh <<EOF
 #!/bin/sh
 #rm -f ~/.vscode-remote/data/Machine/settings.json
@@ -29,6 +20,17 @@ git submodule update --init --recursive
 ./build.sh Debug -nobuild
 EOF
   chmod +x ~/init.sh
+elif [ ${MODE} = "CS" ]; then
+  # Need to install code-server
+  INSTALL_LOC=~/.local/share/code-server
+  curl -fsSL https://code-server.dev/install.sh | sh
+  mkdir -p .config/code-server
+  cat > .config/code-server/config.yaml <<EOF
+bind-addr: 0.0.0.0:8080
+auth: password
+password: mun789
+cert: false
+EOF
 fi
 
 # Create dirs
