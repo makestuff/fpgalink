@@ -75,7 +75,6 @@ EOF
 # Install extensions
 TEMP=$(mktemp -d)
 cd ${TEMP}
-EXT_DIR=~/${INSTALL_LOC}/extensions
 BASE_URL=http://makestuff.de/ext
 EXTENSIONS="
   hbenl.vscode-test-explorer-2.19.4
@@ -87,7 +86,7 @@ for i in ${EXTENSIONS}; do
   echo "Installing ${i}..."
   wget -q ${BASE_URL}/${i}.vsix
   unzip -q ${i}.vsix
-  mv extension ${EXT_DIR}/${i}
+  mv extension ${INSTALL_LOC}/extensions/${i}
   rm -rf *
 done
 cd -
