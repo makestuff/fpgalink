@@ -11,7 +11,7 @@ MODE=$1
 set > env.txt
 
 # Decide what to do based on the mode
-INSTALL_LOC=.local/share/code-server
+INSTALL_LOC=~/.local/share/code-server
 if [ ${MODE} = "GC" ]; then
   # Running in GitHub Codespaces
   cat > init.sh <<EOF
