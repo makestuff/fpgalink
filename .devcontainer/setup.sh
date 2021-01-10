@@ -1,7 +1,16 @@
-# Maybe install code-server (i.e if we're NOT on GitHub codespaces)
-if [ -z "${GITHUB_TOKEN}" ]; then
-  # Not running in codespaces
-  INSTALL_LOC=~/.vscode-remote
+#!/bin/sh
+
+# See what mode we're in
+if [ $# -ne 1 ] || [ "$1" != "GC" ] && [ "$1" != "CS" ]; then
+  echo "Synopsis: build.sh <GC|CS>"
+  exit 1
+fi
+MODE=$1
+
+# Maybe install code-server
+INSTALL_LOC=~/.local/share/code-server
+if [ ${MODE} = "CS" ]; then
+  # Need to install code-server
   curl -fsSL https://code-server.dev/install.sh | sh
   mkdir -p .config/code-server
   cat > .config/code-server/config.yaml <<EOF
@@ -10,11 +19,8 @@ auth: password
 password: mun789
 cert: false
 EOF
-else
-  # Running in codespaces
-  INSTALL_LOC=~/.local/share/code-server
-
-  # Create init.sh
+elif [ ${MODE} = "GC" ]; then
+  # Running in github codespaces
   cat > ~/init.sh <<EOF
 #!/bin/sh
 #rm -f ~/.vscode-remote/data/Machine/settings.json
@@ -22,7 +28,7 @@ else
 git submodule update --init --recursive
 ./build.sh Debug -nobuild
 EOF
-chmod +x ~/init.sh
+  chmod +x ~/init.sh
 fi
 
 # Create dirs
