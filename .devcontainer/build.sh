@@ -1,5 +1,7 @@
 # Maybe install code-server (i.e if we're NOT on GitHub codespaces)
 if [ -z "${GITHUB_TOKEN}" ]; then
+  # Not running in codespaces
+  INSTALL_LOC=~/.vscode-remote
   curl -fsSL https://code-server.dev/install.sh | sh
   mkdir -p .config/code-server
   cat > .config/code-server/config.yaml <<EOF
@@ -8,25 +10,27 @@ auth: password
 password: mun789
 cert: false
 EOF
-fi
+else
+  # Running in codespaces
+  INSTALL_LOC=~/.local/share/code-server
 
-# Create dirs
-mkdir -p .local/share/code-server/extensions
-mkdir -p .local/share/code-server/User
-ln -s ~/.local/share/code-server .vscode-remote
-
-# Create init.sh
-cat > init.sh <<EOF
+  # Create init.sh
+  cat > ~/init.sh <<EOF
 #!/bin/sh
-rm -f ~/.vscode-remote/data/Machine/settings.json
-ln -s ~/.vscode-remote/User/settings.json ~/.vscode-remote/data/Machine/settings.json
+#rm -f ~/.vscode-remote/data/Machine/settings.json
+#ln -s ~/.vscode-remote/User/settings.json ~/.vscode-remote/data/Machine/settings.json
 git submodule update --init --recursive
 ./build.sh Debug -nobuild
 EOF
-chmod +x init.sh
+chmod +x ~/init.sh
+fi
+
+# Create dirs
+mkdir -p ${INSTALL_LOC}/extensions
+mkdir -p ${INSTALL_LOC}/User
 
 # Create default settings.json
-cat > .local/share/code-server/User/settings.json <<EOF
+cat > ${INSTALL_LOC}/User/settings.json <<EOF
 {
     "terminal.integrated.shell.linux": "/bin/bash",
     "extensions.ignoreRecommendations": true,
@@ -65,7 +69,7 @@ EOF
 # Install extensions
 TEMP=$(mktemp -d)
 cd ${TEMP}
-EXT_DIR=~/.local/share/code-server/extensions
+EXT_DIR=~/${INSTALL_LOC}/extensions
 BASE_URL=http://makestuff.de/ext
 EXTENSIONS="
   hbenl.vscode-test-explorer-2.19.4
@@ -80,4 +84,5 @@ for i in ${EXTENSIONS}; do
   mv extension ${EXT_DIR}/${i}
   rm -rf *
 done
+cd -
 rm -rf ${TEMP}
