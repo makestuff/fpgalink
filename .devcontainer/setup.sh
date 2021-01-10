@@ -8,25 +8,20 @@ fi
 MODE=$1
 
 # Get environment
-set > ~/env.txt
+set > env.txt
 
 # Decide what to do based on the mode
+INSTALL_LOC=.local/share/code-server
 if [ ${MODE} = "GC" ]; then
-  # Running in github codespaces
-  #INSTALL_LOC=~/.vscode-remote
-  INSTALL_LOC=~/.local/share/code-server
-  cat > ~/init.sh <<EOF
+  # Running in GitHub Codespaces
+  cat > init.sh <<EOF
 #!/bin/sh
-# The GitHub Codespaces init process overwrites any settings files, so the needs to be done later
-rm -f ~/.local/share/code-server/data/Machine/settings.json
-ln -s ~/.local/share/code-server/User/settings.json ~/.local/share/code-server/data/Machine/settings.json
 git submodule update --init --recursive
 ./build.sh Debug -nobuild
 EOF
-  chmod +x ~/init.sh
+  chmod +x init.sh
 elif [ ${MODE} = "CS" ]; then
   # Need to install code-server
-  INSTALL_LOC=~/.local/share/code-server
   curl -fsSL https://code-server.dev/install.sh | sh
   mkdir -p .config/code-server
   cat > .config/code-server/config.yaml <<EOF
@@ -39,44 +34,6 @@ fi
 
 # Create dirs
 mkdir -p ${INSTALL_LOC}/extensions
-mkdir -p ${INSTALL_LOC}/User
-
-# Create default settings.json
-cat > ${INSTALL_LOC}/User/settings.json <<EOF
-{
-    "terminal.integrated.shell.linux": "/bin/bash",
-    "extensions.ignoreRecommendations": true,
-    "workbench.colorTheme": "Default Dark+",
-    "workbench.tree.indent": 24,
-    "explorer.confirmDelete": false,
-    "editor.minimap.enabled": false,
-    "editor.tabSize": 2,
-
-    "C_Cpp.errorSquiggles": "Disabled",
-    "C_Cpp.intelliSenseEngine": "Disabled",
-    "clangd.path": "/usr/bin/clangd-11",
-    "clangd.onConfigChanged": "restart",
-    "clangd.arguments": [
-        "--query-driver=*",
-        "--background-index",
-        "--compile-commands-dir=build",
-        "-j=32"
-    ],
-    "testMate.cpp.log.logSentry": "disable_3",
-    "testMate.cpp.debug.configTemplate": {
-        "type": "cppdbg",
-        "program": "\${exec}",
-        "args": "\${argsArray}",
-        "cwd": "\${cwd}",
-        "sourceFileMap":"\${sourceFileMapObj}",
-        "setupCommands": [{"text": "-enable-pretty-printing"}]
-    },
-    "testMate.cpp.test.advancedExecutables": [{
-        "pattern": "build/**/*-tests*",
-        "runTask": {"before": ["build"]}
-    }]
-}
-EOF
 
 # Install extensions
 TEMP=$(mktemp -d)

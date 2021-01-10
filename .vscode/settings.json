@@ -1,0 +1,33 @@
+{
+  "terminal.integrated.shell.linux": "/bin/bash",
+  "extensions.ignoreRecommendations": true,
+  "workbench.colorTheme": "Default Dark+",
+  "workbench.tree.indent": 24,
+  "explorer.confirmDelete": false,
+  "editor.minimap.enabled": false,
+  "editor.tabSize": 2,
+
+  "C_Cpp.errorSquiggles": "Disabled",
+  "C_Cpp.intelliSenseEngine": "Disabled",
+  "clangd.path": "/usr/bin/clangd-11",
+  "clangd.onConfigChanged": "restart",
+  "clangd.arguments": [
+      "--query-driver=*",
+      "--background-index",
+      "--compile-commands-dir=build",
+      "-j=32"
+  ],
+  "testMate.cpp.log.logSentry": "disable_3",
+  "testMate.cpp.debug.configTemplate": {
+      "type": "cppdbg",
+      "program": "${exec}",
+      "args": "${argsArray}",
+      "cwd": "${cwd}",
+      "sourceFileMap":"${sourceFileMapObj}",
+      "setupCommands": [{"text": "-enable-pretty-printing"}]
+  },
+  "testMate.cpp.test.advancedExecutables": [{
+      "pattern": "build/**/*-tests*",
+      "runTask": {"before": ["build"]}
+  }]
+}
